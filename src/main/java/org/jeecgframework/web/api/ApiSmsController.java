@@ -61,76 +61,84 @@ public class ApiSmsController extends BaseController {
 		if(workUserList.size()>0){
 			workUser=workUserList.get(0);
 		}
-		// 短信应用SDK AppID
-		int appid = 1400136389; // 1400开头
-
-		// 短信应用SDK AppKey
-		String appkey = "bc375159dc3b6f67ac9967eb42cef49b";
-
-		// 需要发送短信的手机号码
-		String[] phoneNumbers = {workUser.getPhone()};
-
-		// 短信模板ID，需要在短信应用中申请
-		int templateId = 201454; // NOTE: 这里的模板ID`7839`只是一个示例，真实的模板ID需要在短信控制台中申请
-		//templateId7839对应的内容是"您的验证码是: {1}"
-		// 签名
-		String smsSign = "张庆国朦胧岁月"; // NOTE: 这里的签名"腾讯云"只是一个示例，真实的签名需要在短信控制台中申请，另外签名参数使用的是`签名内容`，而不是`签名ID`
-		try {
-			//创建验证码
-			Random r = new Random();
-			StringBuffer str = new StringBuffer();
-			//验证码位数
-			Integer num = 6;//默认6位
-			int i = 0;
-			while(i < num) {
-				str.append(r.nextInt(10));
-				i++;
-			}
-			String values = str.toString();
-            String[] params = {values,"10"};
-            // 调试时关闭发送短信
-//            SmsMultiSender msender = new SmsMultiSender(appid, appkey);
-//            SmsMultiSenderResult result =  msender.sendWithParam("86", phoneNumbers,
-//                templateId, params, smsSign, "", "");  // 签名参数未提供或者为空时，会使用默认签名发送短信
-//			if (result.result==0) {
-			Map<String,Object> attributes=new HashMap<String,Object>();
-	    		if(workUser.getId()!=null){
-	    			if(workUser.getPassword()!=null){
-	    				attributes.put("register", 1);
-//	    				attributes.put("status", 3);
-	    				j.setAttributes(attributes);
-	    				j.setSuccess(false);
-	    			}else{
-						workUser.setUserkey(values);
+		Map<String,Object> attributes=new HashMap<String,Object>();
+		if(workUser.getPassword()!=null){
+			attributes.put("register", 1);
+//			attributes.put("status", 3);
+			j.setAttributes(attributes);
+			j.setSuccess(false);			
+		}else{
+			attributes.put("register", 0);
+			// 短信应用SDK AppID
+			int appid = 1400136389; // 1400开头
+	
+			// 短信应用SDK AppKey
+			String appkey = "bc375159dc3b6f67ac9967eb42cef49b";
+	
+			// 需要发送短信的手机号码
+			String[] phoneNumbers = {workUser.getPhone()};
+	
+			// 短信模板ID，需要在短信应用中申请
+			int templateId = 201454; // NOTE: 这里的模板ID`7839`只是一个示例，真实的模板ID需要在短信控制台中申请
+			//templateId7839对应的内容是"您的验证码是: {1}"
+			// 签名
+			String smsSign = "张庆国朦胧岁月"; // NOTE: 这里的签名"腾讯云"只是一个示例，真实的签名需要在短信控制台中申请，另外签名参数使用的是`签名内容`，而不是`签名ID`
+			try {
+				//创建验证码
+				Random r = new Random();
+				StringBuffer str = new StringBuffer();
+				//验证码位数
+				Integer num = 6;//默认6位
+				int i = 0;
+				while(i < num) {
+					str.append(r.nextInt(10));
+					i++;
+				}
+				String values = str.toString();
+	            String[] params = {values,"10"};
+	            // 调试时关闭发送短信
+	            SmsMultiSender msender = new SmsMultiSender(appid, appkey);
+	            SmsMultiSenderResult result =  msender.sendWithParam("86", phoneNumbers,
+	                templateId, params, smsSign, "", "");  // 签名参数未提供或者为空时，会使用默认签名发送短信
+				if (result.result==0) {
+		    		if(workUser.getId()!=null){
+//		    			if(workUser.getPassword()!=null){
+//		    				attributes.put("register", 1);
+//	//	    				attributes.put("status", 3);
+//		    				j.setAttributes(attributes);
+//		    				j.setSuccess(false);
+//		    			}else{
+							workUser.setUserkey(values);
+			    			workUser.setStatus(1);
+							workUserService.update(workUser);
+							attributes.put("status", 1);
+							j.setAttributes(attributes);
+							j.setObj(values);
+							j.setSuccess(true);
+//						}
+		    		}else{
+		    			workUser.setUsername(workUser.getPhone());
+		    			workUser.setUserkey(values);
+		    			// 1,已发送验证码
 		    			workUser.setStatus(1);
-						workUserService.update(workUser);
+		    			workUserService.insert(workUser);
 						attributes.put("status", 1);
 						j.setAttributes(attributes);
 						j.setObj(values);
 						j.setSuccess(true);
 					}
-	    		}else{
-	    			workUser.setUsername(workUser.getPhone());
-	    			workUser.setUserkey(values);
-	    			// 1,已发送验证码
-	    			workUser.setStatus(1);
-	    			workUserService.insert(workUser);
-					attributes.put("status", 1);
-					j.setAttributes(attributes);
-					j.setObj(values);
-					j.setSuccess(true);
+				}else{
+					j.setSuccess(false);				
 				}
-//			}else{
-//				j.setSuccess(false);				
-//			}
-//		} catch (HTTPException e) {
-//		    e.printStackTrace();
-//			j.setSuccess(false);
-		} catch (JSONException e) {
-		    e.printStackTrace();
-			j.setSuccess(false);
-//		} catch (IOException e) {
-//		    e.printStackTrace();
+			} catch (HTTPException e) {
+			    e.printStackTrace();
+				j.setSuccess(false);
+			} catch (JSONException e) {
+			    e.printStackTrace();
+				j.setSuccess(false);
+	//		} catch (IOException e) {
+	//		    e.printStackTrace();
+			}
 		}
 		return j;
 	}

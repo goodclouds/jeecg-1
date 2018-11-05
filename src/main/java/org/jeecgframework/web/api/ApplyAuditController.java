@@ -67,7 +67,7 @@ public class ApplyAuditController extends BaseController{
 	@ResponseBody
 	public AjaxJson auditStart(WorkApplyEntity workApply, HttpServletRequest request) {
 		AjaxJson j = new AjaxJson();
-		String userId = request.getHeader("login_code");
+		String userId = request.getHeader("login-code");
 		String applyId=request.getParameter("applyId");
 		workApply.setDealPersion(userId);
 		workApply.setId(applyId);
@@ -91,7 +91,7 @@ public class ApplyAuditController extends BaseController{
 			pageNo=1;
 		}
 		AjaxJson j = new AjaxJson();
-		String userId = request.getHeader("login_code");
+		String userId = request.getHeader("login-code");
 //		String applyId=request.getParameter("applyId");
 		
 		String ret=auditService.workList(userId);
