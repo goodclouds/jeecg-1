@@ -100,7 +100,8 @@ public class ApiSmsController extends BaseController {
 	            SmsMultiSender msender = new SmsMultiSender(appid, appkey);
 	            SmsMultiSenderResult result =  msender.sendWithParam("86", phoneNumbers,
 	                templateId, params, smsSign, "", "");  // 签名参数未提供或者为空时，会使用默认签名发送短信
-				if (result.result==0) {
+				System.out.println("result:"+result);
+	            if (result.result==0) {
 		    		if(workUser.getId()!=null){
 //		    			if(workUser.getPassword()!=null){
 //		    				attributes.put("register", 1);

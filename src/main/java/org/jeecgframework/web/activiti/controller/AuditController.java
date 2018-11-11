@@ -25,7 +25,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.jeecg.zwzx.entity.WorkApplyEntity;
+import com.jeecg.zwzx.entity.WorkGuideEntity;
 import com.jeecg.zwzx.service.WorkApplyService;
+import com.jeecg.zwzx.service.WorkGuideService;
 
 
 /**
@@ -38,6 +40,8 @@ public class AuditController extends BaseController{
 	
 	@Autowired
 	private WorkApplyService workApplyService;
+	@Autowired
+	private WorkGuideService workGuideService;
 
 	@Autowired
 	private LeaveServiceI leaveService;
@@ -90,7 +94,8 @@ public class AuditController extends BaseController{
 			String businessKey = processInstance.getBusinessKey();
 
 			WorkApplyEntity workApply = workApplyService.get(businessKey);
-		
+			WorkGuideEntity workGuide=workGuideService.get(workApply.getGuideId());
+			workApply.setGuideName(workGuide.getGuideName());
 			model.addAttribute("processInstanceId", processInstanceId);
 			model.addAttribute("taskId", taskId);
 			model.addAttribute("workApply",workApply);
