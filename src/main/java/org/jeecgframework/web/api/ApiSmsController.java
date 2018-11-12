@@ -33,8 +33,10 @@ import com.github.qcloudsms.SmsMultiSenderResult;
 import com.github.qcloudsms.SmsSingleSender;
 import com.github.qcloudsms.SmsSingleSenderResult;
 import com.github.qcloudsms.httpclient.HTTPException;
+import com.jeecg.zwzx.entity.WorkBlacklistEntity;
 import com.jeecg.zwzx.entity.WorkMenuEntity;
 import com.jeecg.zwzx.entity.WorkUserEntity;
+import com.jeecg.zwzx.service.WorkBlacklistService;
 import com.jeecg.zwzx.service.WorkGuideService;
 import com.jeecg.zwzx.service.WorkUserService;
 
@@ -49,26 +51,36 @@ import com.jeecg.zwzx.service.WorkUserService;
 public class ApiSmsController extends BaseController {
 	@Autowired
 	private WorkUserService workUserService;
+	@Autowired
+	private WorkBlacklistService workBlacklistService;
 
 	@RequestMapping(value="/smsCode")
 	public @ResponseBody AjaxJson txsms(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		AjaxJson j = new AjaxJson();
     	String phone=request.getParameter("phone");
-     	WorkUserEntity workUser=new WorkUserEntity();
+    	if(phone==null){
+    		j.setSuccess(false);
+    		return j;
+    	}
+    	WorkBlacklistEntity workBlacklist=new WorkBlacklistEntity();
+    	workBlacklist.setPhone(phone);
+    	MiniDaoPage<WorkBlacklistEntity> blackList = workBlacklistService.getAll(workBlacklist, 1, 10);
+     	if(blackList.getResults().size()>0){
+     		j.setSuccess(false);
+     		j.setMsg("黑名单");
+     		return j;
+     	}
+    	WorkUserEntity workUser=new WorkUserEntity();
     	workUser.setPhone(phone);
 		MiniDaoPage<WorkUserEntity> list = workUserService.getAll(workUser, 1, 10);
 		List<WorkUserEntity> workUserList = list.getResults();
 		if(workUserList.size()>0){
 			workUser=workUserList.get(0);
 		}
-		Map<String,Object> attributes=new HashMap<String,Object>();
 		if(workUser.getPassword()!=null){
-			attributes.put("register", 1);
-//			attributes.put("status", 3);
-			j.setAttributes(attributes);
-			j.setSuccess(false);			
+			j.setSuccess(false);
+			j.setMsg("号码已注册");
 		}else{
-			attributes.put("register", 0);
 			// 短信应用SDK AppID
 			int appid = 1400136389; // 1400开头
 	
@@ -103,33 +115,20 @@ public class ApiSmsController extends BaseController {
 				System.out.println("result:"+result);
 	            if (result.result==0) {
 		    		if(workUser.getId()!=null){
-//		    			if(workUser.getPassword()!=null){
-//		    				attributes.put("register", 1);
-//	//	    				attributes.put("status", 3);
-//		    				j.setAttributes(attributes);
-//		    				j.setSuccess(false);
-//		    			}else{
-							workUser.setUserkey(values);
-			    			workUser.setStatus(1);
-							workUserService.update(workUser);
-							attributes.put("status", 1);
-							j.setAttributes(attributes);
-							j.setObj(values);
-							j.setSuccess(true);
-//						}
+						workUser.setUserkey(values);
+		    			workUser.setStatus(1);
+						workUserService.update(workUser);
 		    		}else{
 		    			workUser.setUsername(workUser.getPhone());
 		    			workUser.setUserkey(values);
 		    			// 1,已发送验证码
 		    			workUser.setStatus(1);
 		    			workUserService.insert(workUser);
-						attributes.put("status", 1);
-						j.setAttributes(attributes);
-						j.setObj(values);
-						j.setSuccess(true);
 					}
+					j.setSuccess(true);
 				}else{
-					j.setSuccess(false);				
+					j.setSuccess(false);
+					j.setMsg(result.toString());
 				}
 			} catch (HTTPException e) {
 			    e.printStackTrace();
