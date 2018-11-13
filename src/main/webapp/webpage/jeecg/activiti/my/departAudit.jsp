@@ -6,13 +6,13 @@
 <title>审批申请</title>
 <t:base type="jquery,easyui,tools"></t:base>
 </head>
-<body style="overflow-y: hidden" scroll="no">
+<body style="overflow-y: scroll" scroll="yes">
 <t:formvalid formid="formobj" dialog="true" layout="table" action="auditController.do?completeTask">
 	<table style="width: 600px;" cellpadding="0" cellspacing="1" class="formtable">
 		<tr>
 			<td align="right" width="15%" nowrap><label class="Validform_label">审批部门: </label></td>
 			<td class="value" width="85%">
-				${workApply.management}				
+				${workApply.managementName}				
 			</td>
 		</tr>
 		<tr>
@@ -24,7 +24,7 @@
 		<tr>
 			<td align="right" width="15%" nowrap><label class="Validform_label">申请人: </label></td>
 			<td class="value" width="85%">
-				${workApply.dealPersion}				
+				${workApply.personName}				
 			</td>
 		</tr>
 		<tr>
@@ -81,17 +81,26 @@
 				${workApply.applyData}				
 			</td>
 		</tr>
+	   <c:if test="${materialList != null || fn:length(materialList) != 0}">
+	   		<c:forEach var="item" items="${materialList}">
+			<tr>
+				<td align="right" width="15%" nowrap><label class="Validform_label"> ${item.name} </label></td>
+				<td class="value" width="85%">
+					<a href="http://localhost:8080/jeecg/${item.material}" target="_blank">查看详情</a>			
+				</td>
+			</tr>
+			</c:forEach>
+		</c:if>
+		
 		<tr>
-			<td align="right" width="15%" nowrap><label class="Validform_label"> 是否同意: </label></td>
+			<td align="right" width="15%" nowrap><label class="Validform_label"> 是否通过: </label></td>
 			<td class="value" width="85%">
-<!--				<input id="keys" name="keys" type="hidden" value="deptLeaderPass"  />	
-				<input id="values" name="values" class="inputxt"  value="true" datatype="s2-20">
-				<input id="types" name="types" type="hidden" value="B">	-->
                 
                 <select name="deptLeaderPass" class="form-control input-sm" datatype="*" placeholder="请输选择">
 					<option value=""></option>
 					<option value="true">通过</option>
 					<option value="false">未通过</option>
+					<option value="abort">废弃</option>
 				</select>
 				
 				<input id="taskId" name="taskId" type="hidden" value="${taskId}">			

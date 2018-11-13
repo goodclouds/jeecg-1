@@ -33,7 +33,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.fastjson.JSONArray;
 import com.jeecg.zwzx.entity.WorkApplyEntity;
+import com.jeecg.zwzx.entity.WorkGuideEntity;
+import com.jeecg.zwzx.entity.WorkMenuEntity;
+import com.jeecg.zwzx.entity.WorkUserEntity;
 import com.jeecg.zwzx.service.WorkApplyService;
+import com.jeecg.zwzx.service.WorkGuideService;
+import com.jeecg.zwzx.service.WorkMenuService;
+import com.jeecg.zwzx.service.WorkUserService;
 
 @Service("auditService")
 @Transactional
@@ -43,7 +49,11 @@ public class AuditServiceImpl extends CommonServiceImpl implements AuditServiceI
 	private WorkApplyService workApplyService;
 	
 	@Autowired
-	private LeaveDao leaveDao;
+	private WorkGuideService workGuideService;
+	@Autowired
+	private WorkMenuService workMenuService;
+	@Autowired
+	private WorkUserService workUserService;
 	
 	@Autowired
     private IdentityService identityService;
@@ -151,6 +161,45 @@ public class AuditServiceImpl extends CommonServiceImpl implements AuditServiceI
 		variables.put("reApply", reApply);
 		taskService.complete(taskId, variables);
 		return "success";
+	}
+
+	@Override
+	public void completeTask(String taskId, String businessKey,
+			String deptLeaderPass) {
+		boolean auditPass=true;
+		if(deptLeaderPass.equals("true")||deptLeaderPass.equals("false")){
+			auditPass=Boolean.parseBoolean(deptLeaderPass);
+		}
+		Map<String, Object> variables = new HashMap<String, Object>();		
+		variables.put("deptLeaderPass", auditPass);
+		taskService.complete(taskId, variables);
+		WorkApplyEntity workApply = workApplyService.get(businessKey);
+		if(auditPass){
+			workApply.setApplyStatus(2);
+			if(deptLeaderPass.equals("abort")){
+				workApply.setApplyStatus(8); //8, 废弃
+			}
+		}else{
+			workApply.setApplyStatus(6);
+		}
+		workApplyService.update(workApply);
+		
+	}
+
+	@Override
+	public WorkApplyEntity getWorkApplyByProcess(String processInstanceId) {
+		ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).active().singleResult();
+		
+		String businessKey = processInstance.getBusinessKey();
+
+		WorkApplyEntity workApply = workApplyService.get(businessKey);
+		WorkGuideEntity workGuide=workGuideService.get(workApply.getGuideId());
+		WorkMenuEntity workMenu=workMenuService.get(workApply.getManagement());
+		WorkUserEntity workUser = workUserService.get(workApply.getDealPersion());
+		workApply.setGuideName(workGuide.getGuideName());
+		workApply.setManagementName(workMenu.getName());
+		workApply.setPersonName(workUser.getRealname());
+		return workApply;
 	}
 	
 }

@@ -1,9 +1,13 @@
 package org.jeecgframework.web.activiti.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JsonConfig;
 
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
@@ -24,24 +28,21 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.jeecg.zwzx.entity.Material;
 import com.jeecg.zwzx.entity.WorkApplyEntity;
 import com.jeecg.zwzx.entity.WorkGuideEntity;
+import com.jeecg.zwzx.entity.WorkMenuEntity;
 import com.jeecg.zwzx.service.WorkApplyService;
 import com.jeecg.zwzx.service.WorkGuideService;
+import com.jeecg.zwzx.service.WorkMenuService;
 
 
-/**
- * @Description: TODO(请假流程控制类)
- * @author liujinghua
- */
 @Controller
 @RequestMapping("/auditController")
 public class AuditController extends BaseController{
 	
 	@Autowired
 	private WorkApplyService workApplyService;
-	@Autowired
-	private WorkGuideService workGuideService;
 
 	@Autowired
 	private LeaveServiceI leaveService;
@@ -89,19 +90,16 @@ public class AuditController extends BaseController{
 			@RequestParam("processInstanceId") String processInstanceId,
 			@RequestParam("taskId") String taskId,HttpServletRequest request,Model model) {
 			
-			ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).active().singleResult();
-			
-			String businessKey = processInstance.getBusinessKey();
-
-			WorkApplyEntity workApply = workApplyService.get(businessKey);
-			WorkGuideEntity workGuide=workGuideService.get(workApply.getGuideId());
-			workApply.setGuideName(workGuide.getGuideName());
+			WorkApplyEntity workApply=auditService.getWorkApplyByProcess(processInstanceId);
 			model.addAttribute("processInstanceId", processInstanceId);
 			model.addAttribute("taskId", taskId);
 			model.addAttribute("workApply",workApply);
+			if(workApply.getMaterial()!=null&&workApply.getMaterial()!=""){
+				JSONArray materialArray = JSONArray.fromObject(workApply.getMaterial());
+				List<?> materialList = JSONArray.toList(materialArray, new Material(), new JsonConfig());
+				model.addAttribute("materialList",materialList);
+			}
 			
-			System.out.println(jspPage);
-		
 			return new ModelAndView("jeecg/activiti/my/"+jspPage.substring(0, jspPage.lastIndexOf(".")));
 	}
 	
@@ -111,19 +109,9 @@ public class AuditController extends BaseController{
      */
 	@RequestMapping(params = "completeTask")
 	@ResponseBody
-	public AjaxJson completeTask(String taskId,String businessKey,boolean deptLeaderPass,HttpServletRequest request) {
+	public AjaxJson completeTask(String taskId,String businessKey,String deptLeaderPass,HttpServletRequest request) {
 		AjaxJson j = new AjaxJson();
-		
-		Map<String, Object> variables = new HashMap<String, Object>();
-		variables.put("deptLeaderPass", deptLeaderPass);
-		taskService.complete(taskId, variables);
-		WorkApplyEntity workApply = workApplyService.get(businessKey);
-		if(deptLeaderPass){
-			workApply.setApplyStatus(2);
-		}else{
-			workApply.setApplyStatus(6);
-		}
-		workApplyService.update(workApply);
+		auditService.completeTask(taskId,businessKey,deptLeaderPass);
 
 		//请假流程启动
 		//leaveService.leaveWorkFlowStart(leave);

@@ -1,5 +1,7 @@
 package org.jeecgframework.web.activiti.service;
 
+import java.util.Map;
+
 import org.jeecgframework.web.activiti.entity.Audit;
 import org.jeecgframework.web.activiti.entity.Leave;
 import org.jeecgframework.web.activiti.util.Variable;
@@ -12,4 +14,7 @@ public interface AuditServiceI {
 	public void reApplyAudit(String taskId,Audit audit,Variable var);
 	public String workList(String userId);
 	public String reApply(String taskId, String applyId, String status);
+	public void completeTask(String taskId, String businessKey,
+			String deptLeaderPass);
+	public WorkApplyEntity getWorkApplyByProcess(String processInstanceId);
 }
