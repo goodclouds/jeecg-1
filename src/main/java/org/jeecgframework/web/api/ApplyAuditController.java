@@ -69,9 +69,12 @@ public class ApplyAuditController extends BaseController{
 		AjaxJson j = new AjaxJson();
 		String userId = request.getHeader("login-code");
 		String applyId=request.getParameter("applyId");
+//		String formId=request.getParameter("formId");
+//		String resCode=request.getParameter("resCode");
 		workApply.setDealPersion(userId);
 		workApply.setId(applyId);
-		
+//		workApply.setFormId(formId);
+//		workApply.setResCode(resCode);
 		//请假流程启动
 		String ret=auditService.auditWorkFlowStart(workApply);
 		Map<String,Object> attributes=new HashMap<String,Object>();

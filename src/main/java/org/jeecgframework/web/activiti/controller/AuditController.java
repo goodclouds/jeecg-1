@@ -113,9 +113,6 @@ public class AuditController extends BaseController{
 		AjaxJson j = new AjaxJson();
 		auditService.completeTask(taskId,businessKey,deptLeaderPass);
 
-		//请假流程启动
-		//leaveService.leaveWorkFlowStart(leave);
-		
 		String message = "办理成功";
 		j.setMsg(message);
 		return j;
