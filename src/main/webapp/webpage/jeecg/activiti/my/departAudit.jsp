@@ -91,6 +91,12 @@
 			</tr>
 			</c:forEach>
 		</c:if>
+		<tr>
+			<td align="right" width="15%" nowrap><label class="Validform_label">回复: </label></td>
+			<td class="value" width="85%">
+                <textarea id="reply" name="reply" datatype="*" rows="5" cols="60">${workApply.reply}</textarea>
+			</td>
+		</tr>
 		
 		<tr>
 			<td align="right" width="15%" nowrap><label class="Validform_label"> 是否通过: </label></td>

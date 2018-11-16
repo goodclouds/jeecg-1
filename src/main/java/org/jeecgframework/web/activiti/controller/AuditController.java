@@ -109,9 +109,10 @@ public class AuditController extends BaseController{
      */
 	@RequestMapping(params = "completeTask")
 	@ResponseBody
-	public AjaxJson completeTask(String taskId,String businessKey,String deptLeaderPass,HttpServletRequest request) {
+	public AjaxJson completeTask(WorkApplyEntity workApply,String taskId,String businessKey,String deptLeaderPass,HttpServletRequest request) {
 		AjaxJson j = new AjaxJson();
-		auditService.completeTask(taskId,businessKey,deptLeaderPass);
+		String reply=workApply.getReply();
+		auditService.completeTask(taskId,businessKey,deptLeaderPass,reply);
 
 		String message = "办理成功";
 		j.setMsg(message);

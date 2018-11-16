@@ -110,9 +110,10 @@ public class ApplyAuditController extends BaseController{
 	public AjaxJson reApply(HttpServletRequest request, HttpServletResponse response) {
 		AjaxJson j = new AjaxJson();
 		String taskId = request.getParameter("taskId");
+		String formId = request.getParameter("formId");
 		String applyId = request.getParameter("applyId");
 		String status = request.getParameter("status");
-		String ret=auditService.reApply(taskId,applyId,status);
+		String ret=auditService.reApply(taskId,applyId,formId,status);
 		j.setSuccess(false);
 		if(ret=="success"){
 			j.setSuccess(true);

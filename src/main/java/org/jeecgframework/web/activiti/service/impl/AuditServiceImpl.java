@@ -78,7 +78,9 @@ public class AuditServiceImpl extends CommonServiceImpl implements AuditServiceI
     private final String accessTokenUrl = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=APPID&secret=APPSECRET";
 	private String appId="wx1dd61973b1e47f1b";
 	private String secret="a6dc6459e8aa7c10a4c7415d5b7890d5";
-    
+
+	private String templateId="OZy8F0P10K3RAsgYEy5a_LebF9WjMeLDYF5hbq70YK0";
+	
 	/**
 	 * 启动请假流程
 	 * @param leave
@@ -180,7 +182,7 @@ public class AuditServiceImpl extends CommonServiceImpl implements AuditServiceI
 	}
 
 	@Override
-	public String reApply(String taskId, String applyId, String status) {
+	public String reApply(String taskId, String applyId, String formId, String status) {
 		WorkApplyEntity workApply = workApplyService.get(applyId);
 		workApply.setApplyStatus(7);
 		boolean reApply=false;
@@ -188,6 +190,7 @@ public class AuditServiceImpl extends CommonServiceImpl implements AuditServiceI
 			reApply=true;
 			workApply.setApplyStatus(1);
 		}
+		workApply.setFormId(formId);
 		workApplyService.update(workApply);
 		Map<String, Object> variables = new HashMap<String, Object>();
 		variables.put("reApply", reApply);
@@ -197,7 +200,7 @@ public class AuditServiceImpl extends CommonServiceImpl implements AuditServiceI
 
 	@Override
 	public void completeTask(String taskId, String businessKey,
-			String deptLeaderPass) {
+			String deptLeaderPass,String reply) {
 		boolean auditPass=true;
 		if(deptLeaderPass.equals("true")||deptLeaderPass.equals("false")){
 			auditPass=Boolean.parseBoolean(deptLeaderPass);
@@ -215,6 +218,7 @@ public class AuditServiceImpl extends CommonServiceImpl implements AuditServiceI
 		}else{
 			workApply.setApplyStatus(6);
 		}
+		workApply.setReply(reply);
 		sendTemplateMessage(workApply);
 		workApplyService.update(workApply);
 	}
@@ -229,7 +233,7 @@ public class AuditServiceImpl extends CommonServiceImpl implements AuditServiceI
 	    		displayStatus="预审通过";
 	    	}
 	    	if(applyStatus==6){
-	    		displayStatus="补充材料";
+	    		displayStatus="预审未通过";
 	    	}
 	    	if(applyStatus==8){
 	    		displayStatus="申报废弃";
@@ -237,16 +241,16 @@ public class AuditServiceImpl extends CommonServiceImpl implements AuditServiceI
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");  
 	        String auditDate = sdf.format(new Date());  
 	        map.put("keyword1", new WXTemplateData(displayStatus,"#173177"));
-	        map.put("keyword2", new WXTemplateData(auditDate,"#173177"));
-	        map.put("keyword3", new WXTemplateData("12345","#173177"));
-	        map.put("keyword4", new WXTemplateData("323444400","#173177"));
+	        map.put("keyword2", new WXTemplateData(workApply.getApplySubject(),"#173177"));
+	        map.put("keyword3", new WXTemplateData(auditDate,"#173177"));
+	        map.put("keyword4", new WXTemplateData(workApply.getReply(),"#173177"));
 			String accessToken=getAccessToken(appId,secret);
 			String requestUrl = SEND_URL + "?access_token="+accessToken;
 			
 			WXTemplate template = new WXTemplate();
 			template.setTouser(openId);
-			template.setTemplate_id("dxALAb-wkPdp4CJleD18UR5ni1qMk7MqZUoIGflQLf0");
-			template.setPage("pages/apply/myAudits");
+			template.setTemplate_id(templateId);
+			template.setPage("pages/home/myproject");
 			template.setForm_id(workApply.getFormId());
 			template.setData(map);
 			template.setEmphasis_keyword("keyword1.DATA");

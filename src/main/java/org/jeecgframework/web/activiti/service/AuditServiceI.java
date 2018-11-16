@@ -13,8 +13,8 @@ public interface AuditServiceI {
 	public Audit getAudit(Long id);
 	public void reApplyAudit(String taskId,Audit audit,Variable var);
 	public String workList(String userId);
-	public String reApply(String taskId, String applyId, String status);
+	public String reApply(String taskId, String applyId, String formId, String status);
 	public void completeTask(String taskId, String businessKey,
-			String deptLeaderPass);
+			String deptLeaderPass, String reply);
 	public WorkApplyEntity getWorkApplyByProcess(String processInstanceId);
 }
