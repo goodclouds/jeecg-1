@@ -94,7 +94,7 @@ public class AuditServiceImpl extends CommonServiceImpl implements AuditServiceI
 		params.put("appid", appId);
 		params.put("secret", secret);					
 		String result=HttpClientUtil.postParams(jscode2sessionUrl,params);
-        System.out.println("result：" + result);
+//        System.out.println("result：" + result);
 		JSONObject json = null;
 		String openId = null;
 		try {
@@ -256,10 +256,10 @@ public class AuditServiceImpl extends CommonServiceImpl implements AuditServiceI
 			template.setEmphasis_keyword("keyword1.DATA");
 	
 			String jsonMsg = JSONObject.fromObject(template).toString();
-			System.out.println("发送模板消息：" + jsonMsg);
+//			System.out.println("发送模板消息：" + jsonMsg);
 			// 发送模板消息
 			String resp = HttpClientUtil.post(requestUrl, jsonMsg, null);
-			System.out.println("模板消息返回：" + resp);
+//			System.out.println("模板消息返回：" + resp);
 		}
 	}
 	
@@ -271,7 +271,7 @@ public class AuditServiceImpl extends CommonServiceImpl implements AuditServiceI
         String result = HttpClientUtil.post(url, "", null);
          try {
              resultJson = JSONObject.fromObject(result);
-             System.out.println("access token 返回值：" + resultJson);
+//             System.out.println("access token 返回值：" + resultJson);
          } catch (JSONException e) {
              e.printStackTrace();
          }
