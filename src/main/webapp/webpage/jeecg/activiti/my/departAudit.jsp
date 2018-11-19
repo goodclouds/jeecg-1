@@ -86,7 +86,7 @@
 			<tr>
 				<td align="right" width="15%" nowrap><label class="Validform_label"> ${item.name} </label></td>
 				<td class="value" width="85%">
-					<a href="<%=request.getContextPath()%>/${item.material}" target="_blank">查看详情</a>			
+					<a href="<%=request.getContextPath()%>/img/server${item.material}" target="_blank">查看详情</a>			
 				</td>
 			</tr>
 			</c:forEach>

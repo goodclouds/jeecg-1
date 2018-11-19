@@ -15,7 +15,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
+import org.jeecgframework.core.util.ContextHolderUtils;
 import org.jeecgframework.core.util.ResourceUtil;
+import org.jeecgframework.web.system.pojo.base.Client;
+import org.jeecgframework.web.system.pojo.base.TSUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +34,7 @@ public class ImgServerServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	/**
 	 * 图片本地访问： 服务化地址根路径
-	 * 举例： http://localhost:8080/jeecg/img/service/20170519/profile_small.jpg
+	 * 举例： http://localhost:8080/jeecg/img/server/2011118/9060859556863326815.jpg
 	 * 格式： {项目访问地址}/img/server/{图片相对路径}
 	 */
 	private static final String WEB_UPLOAD_BASE_PATH = "img/server/";
@@ -67,11 +71,23 @@ public class ImgServerServlet extends HttpServlet {
 
 	@Override
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String url = request.getRequestURI();
-		if (url.indexOf(ONLINE_TEMPLATE_BASE_PATH) != -1) {
-			this.showPic_OnlineTemplate(url, response);
-		} else if (url.indexOf(WEB_UPLOAD_BASE_PATH) != -1) {
-			this.showPic_WebUpload(url,request,response);
+		String sessionId=ContextHolderUtils.getSession().getId();
+		
+		Client client;
+		if(!StringUtils.isEmpty(sessionId)&&ContextHolderUtils.getSession().getAttribute(sessionId)!=null){
+			client=(Client)ContextHolderUtils.getSession().getAttribute(sessionId);
+		}
+		else{
+			client= null;
+		}
+		TSUser currLoginUser = client!=null?client.getUser():null;
+		if(currLoginUser!=null){
+			String url = request.getRequestURI();
+			if (url.indexOf(ONLINE_TEMPLATE_BASE_PATH) != -1) {
+				this.showPic_OnlineTemplate(url, response);
+			} else if (url.indexOf(WEB_UPLOAD_BASE_PATH) != -1) {
+				this.showPic_WebUpload(url,request,response);
+			}
 		}
 	}
 

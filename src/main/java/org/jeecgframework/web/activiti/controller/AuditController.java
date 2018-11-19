@@ -73,6 +73,8 @@ public class AuditController extends BaseController{
 		
 		//请假流程启动
 		String ret=auditService.auditWorkFlowStart(workApply);
+		logger.info("audit flow start.."+ret);
+
 		Map<String,Object> attributes=new HashMap<String,Object>();
 		attributes.put("status", 1);
 		j.setAttributes(attributes);

@@ -94,7 +94,6 @@ public class AuditServiceImpl extends CommonServiceImpl implements AuditServiceI
 		params.put("appid", appId);
 		params.put("secret", secret);					
 		String result=HttpClientUtil.postParams(jscode2sessionUrl,params);
-//        System.out.println("result：" + result);
 		JSONObject json = null;
 		String openId = null;
 		try {
